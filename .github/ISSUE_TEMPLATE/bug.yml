@@ -1,0 +1,28 @@
+name: Bug Issue
+description: Report an issue to help in improving this project.
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for bug label
+        run: |
+          if [[ $(jq -r ".issue.labels[].name" "$GITHUB_EVENT_PATH") =~ "bug" ]]; then
+            echo "Bug label found!"
+          else
+            echo "No bug label found."
+            exit 1
+          fi
+      - name: Comment on issue
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              body: 'Thank you for submitting a bug report. We will investigate and address the issue as soon as possible.'
+            })
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
